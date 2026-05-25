@@ -11,8 +11,12 @@ export const Config: Schema<Config> = Schema.object({})
 async function processAttrs(attrs: Dict) {
   if (!attrs.width || !attrs.height) {
     const { width, height } = await probe(attrs.src)
-    attrs.width = width
-    attrs.height = height
+    if (typeof attrs.width === 'number')
+      attrs.height = height / width * attrs.width
+    else if (typeof attrs.height === 'number')
+      attrs.width = width / height * attrs.height
+    else
+      [attrs.width, attrs.height] = [width, height]
   }
 }
 
