@@ -21,6 +21,13 @@ async function processAttrs(attrs: Dict) {
 }
 
 export function apply(ctx: Context) {
+  ctx.command('probe-image-size <url:string>')
+    .action(async (_, url) => {
+      const result = await probe(url)
+      return h.text(Object.entries(result)
+        .map(([key, value]) => `${key}: ${value}`).join('\n'))
+    })
+
   ctx.before('send', async (session) => {
     await h.transformAsync(session.elements || [], {
       async img(attrs, children) {
