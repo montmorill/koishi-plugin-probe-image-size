@@ -18,10 +18,13 @@ async function processAttrs(attrs: Dict) {
     else
       [attrs.width, attrs.height] = [width, height]
   }
-  if (typeof attrs.zoom === 'number') {
-    if (attrs.zoom > 0) {
-      attrs.width *= attrs.zoom
-      attrs.height *= attrs.zoom
+  // eslint-disable-next-line style/multiline-ternary
+  const scale = typeof attrs.scale === 'number' ? attrs.scale
+    : typeof attrs.zoom === 'number' ? attrs.zoom : 1
+  if (typeof scale === 'number') {
+    if (scale > 0) {
+      attrs.width *= scale
+      attrs.height *= scale
     }
   }
 }
