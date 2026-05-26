@@ -18,6 +18,12 @@ async function processAttrs(attrs: Dict) {
     else
       [attrs.width, attrs.height] = [width, height]
   }
+  if (typeof attrs.zoom === 'number') {
+    if (attrs.zoom > 0) {
+      attrs.width *= attrs.zoom
+      attrs.height *= attrs.zoom
+    }
+  }
 }
 
 export function apply(ctx: Context) {
