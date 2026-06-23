@@ -32,8 +32,12 @@ async function processImage(attrs: h['attrs'], children: h['children']) {
 }
 
 export function apply(ctx: Context) {
-  ctx.command('probe-image-size <url:string>', { hidden: true })
-    .action(async (_, url) => {
+  ctx.command('probe-image-size <url:string>', '嗅探图片信息')
+    .action(async (_, url: string) => {
+      if (url.startsWith('<im')) {
+        const { attrs } = h.parse(url)[0]
+        url = attrs.src || attrs.url
+      }
       const result = await probe(url)
       return h.text(Object.entries(result)
         .map(([key, value]) => `${key}: ${value}`).join('\n'))
