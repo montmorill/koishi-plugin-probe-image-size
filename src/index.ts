@@ -1,9 +1,10 @@
 import type { Context } from 'koishi'
 import {} from '@koishijs/plugin-help'
-import { h, Schema } from 'koishi'
+import { h, Logger, Schema } from 'koishi'
 import probe from 'probe-image-size'
 
 export const name = 'probe-image-size'
+const logger = new Logger(name)
 
 export interface Config {}
 
@@ -11,21 +12,17 @@ export const Config: Schema<Config> = Schema.object({})
 
 async function processImage(attrs: h['attrs'], children: h['children']) {
   if (!attrs.width || !attrs.height) {
-    const { width, height } = await probe(attrs.src)
-    if (typeof attrs.width === 'number')
-      attrs.height = height / width * attrs.width
-    else if (typeof attrs.height === 'number')
-      attrs.width = width / height * attrs.height
-    else
-      [attrs.width, attrs.height] = [width, height]
-  }
-  // eslint-disable-next-line style/multiline-ternary
-  const scale = typeof attrs.scale === 'number' ? attrs.scale
-    : typeof attrs.zoom === 'number' ? attrs.zoom : 1
-  if (typeof scale === 'number') {
-    if (scale > 0) {
-      attrs.width *= scale
-      attrs.height *= scale
+    try {
+      const { width, height } = await probe(attrs.src)
+      if (typeof attrs.width === 'number')
+        attrs.height = height / width * attrs.width
+      else if (typeof attrs.height === 'number')
+        attrs.width = width / height * attrs.height
+      else
+        [attrs.width, attrs.height] = [width, height]
+    }
+    catch (e) {
+      logger.warn(e)
     }
   }
   return h('img', attrs, children)
