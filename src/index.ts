@@ -1,14 +1,15 @@
-import type { Context, Dict } from 'koishi'
+import type { Context } from 'koishi'
+import {} from '@koishijs/plugin-help'
 import { h, Schema } from 'koishi'
 import probe from 'probe-image-size'
 
 export const name = 'probe-image-size'
 
-export interface Config { }
+export interface Config {}
 
 export const Config: Schema<Config> = Schema.object({})
 
-async function processAttrs(attrs: Dict) {
+async function processImage(attrs: h['attrs'], children: h['children']) {
   if (!attrs.width || !attrs.height) {
     const { width, height } = await probe(attrs.src)
     if (typeof attrs.width === 'number')
@@ -27,10 +28,11 @@ async function processAttrs(attrs: Dict) {
       attrs.height *= scale
     }
   }
+  return h('img', attrs, children)
 }
 
 export function apply(ctx: Context) {
-  ctx.command('probe-image-size <url:string>')
+  ctx.command('probe-image-size <url:string>', { hidden: true })
     .action(async (_, url) => {
       const result = await probe(url)
       return h.text(Object.entries(result)
@@ -39,14 +41,8 @@ export function apply(ctx: Context) {
 
   ctx.before('send', async (session) => {
     await h.transformAsync(session.elements || [], {
-      async img(attrs, children) {
-        await processAttrs(attrs)
-        return h('img', attrs, children)
-      },
-      async image(attrs, children) {
-        await processAttrs(attrs)
-        return h('image', attrs, children)
-      },
+      img: processImage,
+      image: processImage,
     })
   })
 }
