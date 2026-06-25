@@ -6,9 +6,15 @@ import probe from 'probe-image-size'
 export const name = 'probe-image-size'
 const logger = new Logger(name)
 
-export interface Config {}
+export interface Config {
+  command: boolean
+  transform: boolean
+}
 
-export const Config: Schema<Config> = Schema.object({})
+export const Config: Schema<Config> = Schema.object({
+  command: Schema.boolean().default(true).description('启用 probe-image-size 命令。'),
+  transform: Schema.boolean().default(true).description('为所有图片设置宽度和高度。'),
+})
 
 async function processImage(attrs: h['attrs'], children: h['children']) {
   if (!attrs.width || !attrs.height) {
@@ -28,8 +34,8 @@ async function processImage(attrs: h['attrs'], children: h['children']) {
   return h('img', attrs, children)
 }
 
-export function apply(ctx: Context) {
-  ctx.command('probe-image-size <content:string>', '嗅探图片信息')
+export function apply(ctx: Context, config: Config) {
+  config.command && ctx.command('probe-image-size <content:string>', '嗅探图片信息')
     .action(async (_, content: string) => {
       const [{ attrs }] = h.parse(content)
       const url = attrs.src || attrs.url || attrs.content
@@ -38,7 +44,7 @@ export function apply(ctx: Context) {
         .map(([key, value]) => `${key}: ${value}`).join('\n'))
     })
 
-  ctx.before('send', async (session) => {
+  config.transform && ctx.before('send', async (session) => {
     await h.transformAsync(session.elements || [], {
       img: processImage,
       image: processImage,
