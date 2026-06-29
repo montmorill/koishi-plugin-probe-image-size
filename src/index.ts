@@ -19,7 +19,7 @@ export const Config: Schema<Config> = Schema.object({
 async function processImage(attrs: h['attrs'], children: h['children']) {
   if (!attrs.width || !attrs.height) {
     try {
-      const { width, height } = await probe(attrs.src)
+      const { width, height } = await probe(encodeURI(attrs.src))
       if (typeof attrs.width === 'number')
         attrs.height = height / width * attrs.width
       else if (typeof attrs.height === 'number')
@@ -39,7 +39,7 @@ export function apply(ctx: Context, config: Config) {
     .action(async (_, content: string) => {
       const [{ attrs }] = h.parse(content)
       const url = attrs.src || attrs.url || attrs.content
-      const result = await probe(url)
+      const result = await probe(encodeURI(url))
       return h.text(Object.entries(result)
         .map(([key, value]) => `${key}: ${value}`).join('\n'))
     })
