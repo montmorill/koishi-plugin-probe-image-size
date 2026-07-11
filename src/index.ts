@@ -17,9 +17,13 @@ export const Config: Schema<Config> = Schema.object({
 })
 
 async function processImage(attrs: h['attrs'], children: h['children']) {
+  const element = h('img', attrs, children)
+  const src: string = attrs.src || attrs.url
+  if (src.toLowerCase().endsWith('.gif'))
+    return element
   if (!attrs.width || !attrs.height) {
     try {
-      const { width, height } = await probe(encodeURI(attrs.src))
+      const { width, height } = await probe(encodeURI(src))
       if (typeof attrs.width === 'number')
         attrs.height = height / width * attrs.width
       else if (typeof attrs.height === 'number')
@@ -31,7 +35,7 @@ async function processImage(attrs: h['attrs'], children: h['children']) {
       logger.warn(e)
     }
   }
-  return h('img', attrs, children)
+  return element
 }
 
 export function apply(ctx: Context, config: Config) {
