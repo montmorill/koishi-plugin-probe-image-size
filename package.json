@@ -1,6 +1,6 @@
 {
   "name": "koishi-plugin-probe-image-size",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "为图片元素添加尺寸信息",
   "typings": "lib/index.d.ts",
   "license": "MIT",
