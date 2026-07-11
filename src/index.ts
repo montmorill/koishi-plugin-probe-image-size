@@ -19,7 +19,7 @@ export const Config: Schema<Config> = Schema.object({
 async function processImage(attrs: h['attrs'], children: h['children']) {
   const element = h('img', attrs, children)
   const src: string = attrs.src || attrs.url
-  if (src.toLowerCase().endsWith('.gif'))
+  if (!/\.(?:jpe?g|png|webp|bmp|iff|svg|psd)$/i.test(src))
     return element
   if (!attrs.width || !attrs.height) {
     try {
